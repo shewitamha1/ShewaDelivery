@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ShewaDelivery — Real-Time Food Delivery Platform · Ethiopia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f5f6f8;
+  --panel: #ffffff;
+  --panel2: #eef0f3;
+  --orange: #F97316;
+  --amber: #FBBF24;
+  --cream: #111827;
+  --muted: rgba(17,24,39,0.52);
+  --dimmed: rgba(17,24,39,0.3);
+  --border: rgba(249,115,22,0.2);
+  --border-faint: rgba(17,24,39,0.1);
+  --green: #16a34a;
+  --blue: #2563eb;
+  --red: #dc2626;
+  --r: 14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--cream);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── GRAIN OVERLAY ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:999;pointer-events:none;
+  opacity:.018;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat:repeat;
+}
+
+/* ── TYPOGRAPHY ── */
+.display{font-family:'Fraunces',serif;font-weight:800}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes gps{0%{transform:translate(0,0)}20%{transform:translate(20px,-15px)}40%{transform:translate(40px,5px)}60%{transform:translate(25px,25px)}80%{transform:translate(-10px,20px)}100%{transform:translate(0,0)}}
+@keyframes toastIn{from{opacity:0;transform:translateX(120%)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(120%)}}
+@keyframes barFill{from{height:0}to{height:var(--h)}}
+@keyframes progressFill{from{width:0}to{width:var(--w)}}
+@keyframes dotPop{0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes pingRing{0%{transform:translate(-50%,-50%) scale(1);opacity:.7}100%{transform:translate(-50%,-50%) scale(2.8);opacity:0}}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 3rem;
+  background:rgba(255,255,255,0.88);
+  backdrop-filter:blur(22px);
+  border-bottom:1px solid rgba(0,0,0,0.07);
+  transition:padding .3s;
+}
+.logo{
+  font-family:'Fraunces',serif;font-weight:800;font-size:1.45rem;
+  letter-spacing:-.02em;white-space:nowrap;
+  text-decoration:none;
+}
+.logo .shewa{color:var(--cream)}
+.logo .delivery{color:var(--orange)}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{
+  text-decoration:none;color:var(--muted);
+  font-size:.875rem;font-weight:500;letter-spacing:.01em;
+  transition:color .2s;
+}
+.nav-links a:hover{color:var(--cream)}
+.nav-cta{
+  background:var(--orange);color:#fff;border:none;
+  padding:.55rem 1.3rem;border-radius:9px;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:.875rem;font-weight:600;
+  white-space:nowrap;
+  transition:transform .15s,box-shadow .2s;
+}
+.nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(14,207,207,.3) }
+
+/* ── SECTION SHELL ── */
+section{position:relative;overflow:hidden}
+.container{max-width:1280px;margin:0 auto;padding:0 3rem}
+.section-pad{padding:120px 0}
+.sec-label{
+  font-size:.72rem;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--orange);margin-bottom:.9rem;
+}
+.sec-heading{
+  font-family:'Fraunces',serif;font-weight:800;
+  font-size:clamp(2.2rem,4.5vw,3.4rem);
+  line-height:1.05;letter-spacing:-.025em;
+  margin-bottom:1.2rem;
+}
+.sec-sub{color:var(--muted);font-size:1.05rem;line-height:1.75;max-width:520px}
+.divider{
+  width:100%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(249,115,22,.25),transparent);
+  margin:0;
+}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;display:flex;align-items:center;
+  padding:7rem 3rem 5rem;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 55% 65% at 75% 45%,rgba(249,115,22,.1) 0%,transparent 70%),
+    radial-gradient(ellipse 40% 45% at 18% 75%,rgba(251,191,36,.08) 0%,transparent 60%);
+}
+.dot-grid{
+  position:absolute;inset:0;z-index:0;
+  background-image:radial-gradient(rgba(17,24,39,.07) 1px, transparent 1px);
+  background-size:32px 32px;
+  mask-image:radial-gradient(ellipse 75% 75% at 50% 50%,black 0%,transparent 100%);
+}
+.hero-inner{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:55fr 45fr;
+  gap:4rem;align-items:center;width:100%;max-width:1280px;margin:0 auto;
+}
+.hero-left>*{opacity:0;animation:fadeUp .7s ease both}
+.hero-badge{animation-delay:.1s}
+.hero-h1{animation-delay:.22s}
+.hero-sub{animation-delay:.36s}
+.hero-btns{animation-delay:.48s}
+.hero-stats{animation-delay:.62s}
+
+.badge{
+  display:inline-flex;align-items:center;gap:.55rem;
+  background:rgba(14,207,207,.1);border:1px solid rgba(14,207,207,.28);
+  color:var(--orange);padding:.38rem 1rem;border-radius:100px;
+  font-size:.78rem;font-weight:600;letter-spacing:.03em;
+  margin-bottom:1.6rem;
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:#22C55E;animation:pulse 1.6s infinite}
+
+h1.headline{
+  font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(3.2rem,6.5vw,5.6rem);
+  line-height:1.0;letter-spacing:-.035em;
+  margin-bottom:1.5rem;
+}
+h1.headline .grad{
+  background:linear-gradient(120deg,var(--orange),var(--amber));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero-sub-text{
+  color:var(--muted);font-size:1.1rem;line-height:1.8;max-width:460px;
+  margin-bottom:2.2rem;
+}
+.btn-row{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2.8rem}
+.btn-primary{
+  background:var(--orange);color:#fff;border:none;padding:.78rem 1.8rem;
+  border-radius:12px;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:600;
+  transition:transform .15s,box-shadow .2s;
+  text-decoration:none;display:inline-block;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(14,207,207,.3)}
+.btn-ghost{
+  background:transparent;color:var(--cream);
+  border:1px solid rgba(250,245,235,.2);padding:.78rem 1.8rem;
+  border-radius:12px;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:500;
+  transition:border-color .2s,background .2s;
+  text-decoration:none;display:inline-block;
+}
+.btn-ghost:hover{border-color:rgba(250,245,235,.45);background:rgba(250,245,235,.04)}
+
+.stats-row{display:flex;align-items:center;gap:0}
+.stat-item{
+  padding:0 1.8rem;text-align:left;
+  border-right:1px solid rgba(250,245,235,.12);
+}
+.stat-item:first-child{padding-left:0}
+.stat-item:last-child{border-right:none}
+.stat-val{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:800;color:var(--orange)}
+.stat-label{font-size:.75rem;color:var(--muted);line-height:1.4;margin-top:.1rem}
+
+/* ── PHONE MOCKUP ── */
+.phone-wrap{
+  display:flex;justify-content:center;align-items:center;
+  animation:float 3.2s ease-in-out infinite;
+}
+.phone{
+  width:272px;height:560px;border-radius:44px;
+  background:#1e2030;
+  border:1.5px solid rgba(0,0,0,.12);
+  box-shadow:0 40px 100px rgba(0,0,0,.18),0 0 0 1px rgba(249,115,22,.08),inset 0 1px 0 rgba(255,255,255,.06);
+  display:flex;flex-direction:column;overflow:hidden;position:relative;
+}
+.phone-bar{
+  background:#252830;padding:.75rem 1rem .5rem;
+  display:flex;flex-direction:column;gap:.5rem;
+}
+.phone-loc{font-size:.72rem;color:var(--orange);font-weight:600;display:flex;align-items:center;gap:.3rem}
+.phone-search{
+  background:rgba(255,255,255,.06);border:1px solid var(--border-faint);
+  border-radius:8px;padding:.45rem .75rem;font-size:.72rem;color:var(--muted);
+}
+.phone-cats{display:flex;gap:.4rem;padding:.5rem 1rem .4rem;overflow:hidden}
+.cat-pill{
+  font-size:.65rem;padding:.28rem .65rem;border-radius:100px;white-space:nowrap;
+  background:rgba(14,207,207,.15);color:var(--orange);border:1px solid rgba(14,207,207,.25);font-weight:600;
+}
+.cat-pill.inactive{background:rgba(255,255,255,.04);color:var(--muted);border-color:var(--border-faint)}
+.phone-cards{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:.5rem;padding:.3rem 1rem .5rem}
+.p-card{
+  background:rgba(255,255,255,.04);border:1px solid var(--border-faint);
+  border-radius:10px;padding:.65rem .75rem;display:flex;align-items:center;gap:.6rem;
+}
+.p-card-icon{font-size:1.4rem;flex-shrink:0}
+.p-card-info{flex:1}
+.p-card-name{font-size:.75rem;font-weight:600;color:var(--cream)}
+.p-card-meta{font-size:.65rem;color:var(--muted)}
+.p-open{
+  font-size:.6rem;padding:.22rem .5rem;border-radius:5px;
+  background:rgba(34,197,94,.15);color:#22C55E;font-weight:600;white-space:nowrap;
+}
+.phone-nav{
+  background:#252830;border-top:1px solid var(--border-faint);
+  display:flex;justify-content:space-around;padding:.6rem 0 .8rem;
+}
+.ph-nav-icon{font-size:1.1rem;cursor:pointer;opacity:.5}
+.ph-nav-icon.active-nav{opacity:1}
+
+/* ── ARCHITECTURE ── */
+#architecture{background:var(--surface);padding:100px 0}
+.arch-head{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:end;margin-bottom:4rem}
+.arch-desc{color:var(--muted);font-size:1rem;line-height:1.75}
+.arch-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:2px;background:rgba(14,207,207,.05);border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;
+}
+.arch-card{
+  background:var(--panel);padding:2rem 1.8rem;
+  transition:background .2s;cursor:default;position:relative;
+}
+.arch-card:hover{background:var(--panel2)}
+.arch-card:hover::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(14,207,207,.25);border-radius:0;
+}
+.arch-icon{font-size:2rem;margin-bottom:1rem}
+.arch-name{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;margin-bottom:.5rem}
+.arch-desc-text{font-size:.82rem;color:var(--muted);line-height:1.65;margin-bottom:1rem}
+.tag-row{display:flex;flex-wrap:wrap;gap:.4rem}
+.tag{font-size:.65rem;padding:.22rem .65rem;border-radius:100px;background:rgba(14,207,207,.1);color:var(--orange);font-weight:600;border:1px solid rgba(14,207,207,.2)}
+
+/* ── MODULES / TABS ── */
+#modules{padding:100px 0}
+.tab-bar{display:flex;gap:.5rem;margin-bottom:3rem;background:var(--surface);border-radius:12px;padding:.35rem;border:1px solid var(--border-faint);width:fit-content}
+.tab-btn{
+  padding:.65rem 1.4rem;border-radius:9px;border:none;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:.875rem;font-weight:600;
+  background:transparent;color:var(--muted);
+  transition:all .2s;white-space:nowrap;
+}
+.tab-btn.active{background:var(--orange);color:#fff}
+.tab-btn:not(.active):hover{color:var(--cream);background:rgba(255,255,255,.04)}
+.tab-panel{display:none;animation:fadeUp .35s ease both}
+.tab-panel.active{display:block}
+
+/* ── ORDER FLOW ── */
+.order-layout{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+.stepper{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:1rem;position:relative;padding-bottom:1.8rem}
+.step:last-child{padding-bottom:0}
+.step:not(:last-child)::before{
+  content:'';position:absolute;left:17px;top:36px;bottom:0;
+  width:1px;background:var(--border-faint);
+}
+.step.done:not(:last-child)::before{background:rgba(34,197,94,.3)}
+.step-circle{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;font-weight:700;
+  border:2px solid var(--border-faint);color:var(--muted);
+  transition:all .3s;z-index:1;background:var(--bg);
+}
+.step.done .step-circle{background:rgba(34,197,94,.15);border-color:#22C55E;color:#22C55E}
+.step.active .step-circle{background:var(--orange);border-color:var(--orange);color:#fff}
+.step-title{font-weight:700;font-size:.9rem;margin-bottom:.3rem;color:var(--muted)}
+.step.done .step-title,.step.active .step-title{color:var(--cream)}
+.step-desc{font-size:.78rem;color:var(--dimmed);line-height:1.55}
+.step.active .step-desc{color:var(--muted)}
+
+.order-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:16px;
+  padding:1.6rem;
+}
+.order-id-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem}
+.order-id{font-family:'Fraunces',serif;font-size:1rem;font-weight:700}
+.chip{padding:.28rem .8rem;border-radius:100px;font-size:.72rem;font-weight:700}
+.chip-yellow{background:rgba(251,191,36,.15);color:var(--amber)}
+.chip-orange{background:rgba(14,207,207,.13);color:var(--orange)}
+.chip-blue{background:rgba(96,165,250,.15);color:var(--blue)}
+.chip-green{background:rgba(34,197,94,.15);color:#22C55E}
+.order-items{margin-bottom:1rem}
+.oi{display:flex;justify-content:space-between;font-size:.82rem;padding:.4rem 0;border-bottom:1px solid var(--border-faint);color:var(--muted)}
+.oi:last-child{border:none}
+.oi-name{flex:1}
+.oi-price{font-weight:600;color:var(--cream)}
+.order-total{display:flex;justify-content:space-between;font-weight:700;padding:.6rem 0 1rem;border-top:1px solid var(--border)}
+.total-val{color:var(--orange);font-size:1.1rem}
+.mini-map{
+  height:100px;background:#f0f2f5;border:1px solid var(--border-faint);border-radius:10px;
+  margin-bottom:1rem;position:relative;overflow:hidden;
+  background-image:radial-gradient(rgba(17,24,39,.06) 1px,transparent 1px);
+  background-size:20px 20px;
+}
+.gps-dot{
+  width:10px;height:10px;border-radius:50%;background:var(--orange);
+  position:absolute;top:40%;left:20%;
+  animation:gps 5s ease-in-out infinite;
+  box-shadow:0 0 0 4px rgba(249,115,22,.25);
+}
+.order-btns{display:flex;gap:.7rem;margin-bottom:1rem}
+.btn-sm{padding:.55rem 1.1rem;border-radius:9px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;border:none}
+.btn-sm-primary{background:var(--orange);color:#fff}
+.btn-sm-primary:hover{box-shadow:0 6px 20px rgba(14,207,207,.3)}
+.btn-sm-ghost{background:transparent;color:var(--muted);border:1px solid var(--border-faint)}
+.btn-sm-ghost:hover{color:var(--cream);border-color:rgba(250,245,235,.2)}
+.order-log{
+  background:#f5f6f8;border:1px solid var(--border-faint);border-radius:8px;
+  padding:.7rem .9rem;min-height:72px;max-height:140px;overflow-y:auto;
+}
+.log-line{font-size:.72rem;color:#22C55E;font-family:monospace;line-height:1.7;opacity:.85}
+
+/* ── DRIVER ASSIGNMENT ── */
+.driver-layout{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem}
+.driver-map{
+  background:#f5f6f8;border:1px solid var(--border-faint);border-radius:14px;
+  padding:1.5rem;min-height:300px;position:relative;
+}
+.driver-map-title{font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:1rem;letter-spacing:.05em;text-transform:uppercase}
+.map-area{height:260px;position:relative;border-radius:10px;overflow:hidden;margin-bottom:1rem;border:1px solid rgba(17,24,39,.08)}
+.map-area svg{width:100%;height:100%;display:block}
+.driver-dot{
+  width:22px;height:22px;border-radius:50%;position:absolute;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:.6rem;font-weight:800;color:#fff;
+  animation:dotPop .4s ease both;
+  transform:translate(-50%,-50%);
+  z-index:10;
+  transition:transform .15s,box-shadow .15s;
+}
+.driver-dot:hover{transform:translate(-50%,-50%) scale(1.2)}
+.driver-dot.avail{background:#22C55E;box-shadow:0 0 0 6px rgba(34,197,94,.25),0 2px 8px rgba(0,0,0,.18)}
+.driver-dot.busy{background:var(--amber);box-shadow:0 0 0 6px rgba(251,191,36,.25),0 2px 8px rgba(0,0,0,.18)}
+.order-pin{
+  width:20px;height:20px;border-radius:50%;background:var(--blue);position:absolute;
+  transform:translate(-50%,-50%);z-index:10;
+  box-shadow:0 2px 8px rgba(0,0,0,.18);
+}
+.order-pin::before{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:2px solid rgba(96,165,250,.55);
+  animation:pingRing 1.8s ease-out infinite;
+}
+.order-pin::after{
+  content:'🍽';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-52%);font-size:.65rem;line-height:1;
+}
+.map-legend{display:flex;gap:1.2rem;font-size:.72rem;color:var(--muted)}
+.legend-item{display:flex;align-items:center;gap:.4rem}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+.formula-box{
+  background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);
+  border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;
+}
+.formula-label{font-size:.65rem;color:rgba(167,139,250,.7);font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem}
+.formula-code{font-family:monospace;font-size:.72rem;color:rgba(167,139,250,.85);line-height:1.6}
+
+.driver-list{display:flex;flex-direction:column;gap:.7rem}
+.driver-card{
+  background:var(--panel);border:1px solid var(--border-faint);border-radius:12px;
+  padding:1rem 1.1rem;display:flex;align-items:center;gap:1rem;cursor:pointer;
+  transition:all .2s;
+}
+.driver-card:hover{border-color:rgba(14,207,207,.3);background:var(--panel2)}
+.driver-card.selected{border-color:var(--orange);background:rgba(14,207,207,.06)}
+.driver-avatar{
+  width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--orange),var(--amber));
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0;
+}
+.driver-info{flex:1}
+.driver-name{font-weight:700;font-size:.88rem;margin-bottom:.2rem}
+.driver-meta{font-size:.73rem;color:var(--muted)}
+.driver-dist{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:800;color:var(--orange)}
+.driver-dist-unit{font-size:.7rem;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;display:block;text-align:right}
+.assign-btn{
+  width:100%;padding:.75rem;border-radius:10px;border:none;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:700;
+  background:var(--panel);color:var(--muted);border:1px solid var(--border-faint);
+  transition:all .25s;margin-top:.8rem;
+}
+.assign-btn.ready{background:var(--orange);color:#fff;border-color:transparent}
+.assign-btn.ready:hover{box-shadow:0 8px 24px rgba(14,207,207,.3)}
+.assign-confirm{
+  margin-top:.8rem;padding:.8rem;border-radius:10px;
+  background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);
+  color:#22C55E;font-size:.82rem;text-align:center;font-weight:600;
+  display:none;
+}
+
+/* ── RESTAURANT DASHBOARD ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.kpi-card{
+  background:var(--panel);border:1px solid var(--border-faint);border-radius:12px;
+  padding:1.2rem 1.4rem;
+}
+.kpi-label{font-size:.72rem;color:var(--muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.4rem}
+.kpi-val{font-family:'Fraunces',serif;font-size:2rem;font-weight:800;line-height:1;margin-bottom:.3rem}
+.kpi-val.orange{color:var(--orange)}
+.kpi-sub{font-size:.72rem;color:var(--muted)}
+
+.filter-row{display:flex;gap:.5rem;margin-bottom:1rem}
+.filter-btn{
+  padding:.38rem .9rem;border-radius:7px;border:1px solid var(--border-faint);
+  background:transparent;color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;
+}
+.filter-btn.active{background:var(--orange);color:#fff;border-color:transparent}
+.filter-btn:hover:not(.active){color:var(--cream)}
+.orders-table-wrap{overflow-x:auto;margin-bottom:2rem}
+table{width:100%;border-collapse:collapse}
+th{font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;padding:.7rem 1rem;border-bottom:1px solid var(--border-faint)}
+td{padding:.75rem 1rem;font-size:.83rem;border-bottom:1px solid rgba(250,245,235,.04);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,.015)}
+.mark-ready-btn{
+  padding:.35rem .8rem;border-radius:6px;border:1px solid rgba(14,207,207,.3);
+  background:transparent;color:var(--orange);font-size:.73rem;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;
+}
+.mark-ready-btn:hover{background:rgba(14,207,207,.1)}
+.mark-ready-btn:disabled{opacity:.35;cursor:not-allowed;border-color:var(--border-faint);color:var(--muted)}
+
+.dashboard-bottom{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem}
+.chart-area{background:var(--panel);border:1px solid var(--border-faint);border-radius:14px;padding:1.5rem}
+.chart-title{font-size:.85rem;font-weight:700;margin-bottom:1.2rem}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px;padding-bottom:0}
+.bar-wrap{display:flex;flex-direction:column;align-items:center;gap:.3rem;flex:1}
+.bar{
+  width:100%;border-radius:5px 5px 0 0;
+  background:rgba(17,24,39,0.1);
+  transition:height .4s ease;
+  height:var(--h);
+}
+.bar.current{background:linear-gradient(to top,var(--orange),var(--amber))}
+.bar.future{background:rgba(17,24,39,0.05)}
+.bar-label{font-size:.6rem;color:var(--muted)}
+
+.menu-items-area{background:var(--panel);border:1px solid var(--border-faint);border-radius:14px;padding:1.5rem}
+.menu-item-row{display:flex;align-items:center;gap:.9rem;padding:.7rem 0;border-bottom:1px solid var(--border-faint)}
+.menu-item-row:last-child{border:none}
+.rank-circle{width:26px;height:26px;border-radius:50%;background:rgba(249,115,22,.1);color:var(--orange);font-size:.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.menu-info{flex:1}
+.menu-name{font-size:.83rem;font-weight:600;margin-bottom:.3rem}
+.menu-bar-bg{height:4px;background:rgba(250,245,235,.08);border-radius:2px;overflow:hidden}
+.menu-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--orange),var(--amber))}
+.menu-count{font-size:.78rem;color:var(--orange);font-weight:700;white-space:nowrap}
+
+/* ── STACK ── */
+#stack{background:var(--surface);padding:100px 0}
+.stack-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(14,207,207,.04);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:3rem}
+.stack-card{
+  background:var(--panel);padding:1.8rem 1.5rem;
+  transition:background .2s;position:relative;
+}
+.stack-card:hover{background:var(--panel2)}
+.stack-card:hover::after{content:'';position:absolute;inset:0;box-shadow:inset 0 0 0 1px rgba(14,207,207,.2);pointer-events:none}
+.stack-icon{font-size:2rem;margin-bottom:.9rem}
+.stack-tech{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:700;margin-bottom:.2rem}
+.stack-role{font-size:.72rem;color:var(--orange);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.6rem}
+.stack-why{font-size:.78rem;color:var(--muted);line-height:1.6}
+
+/* ── QUALITY ── */
+#quality{padding:100px 0}
+.quality-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:3rem}
+.quality-card{
+  background:var(--panel);border:1px solid var(--border-faint);border-radius:14px;
+  padding:1.8rem;transition:all .25s;
+}
+.quality-card:hover{border-color:rgba(14,207,207,.3);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.4),0 0 0 1px rgba(14,207,207,.12)}
+.q-icon{font-size:1.8rem;margin-bottom:.9rem}
+.q-name{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;margin-bottom:.3rem}
+.q-metric{font-size:1.7rem;font-weight:800;color:var(--orange);font-family:'Fraunces',serif;margin-bottom:.5rem}
+.q-desc{font-size:.8rem;color:var(--muted);line-height:1.6;margin-bottom:1rem}
+.progress-bg{height:5px;background:rgba(250,245,235,.08);border-radius:3px;overflow:hidden}
+.progress-fill{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--orange),var(--amber));
+  width:0;transition:width 1.2s ease;
+}
+
+/* ── FOOTER ── */
+footer{
+  background:#f5f6f8;padding:4rem 3rem 2.5rem;
+  border-top:1px solid;
+  border-image:linear-gradient(90deg,transparent,rgba(249,115,22,.3),transparent) 1;
+}
+.footer-inner{
+  max-width:1280px;margin:0 auto;
+  display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:3rem;margin-bottom:3rem;
+}
+.footer-logo{font-family:'Fraunces',serif;font-weight:800;font-size:1.3rem;margin-bottom:.6rem}
+.footer-tagline{font-size:.82rem;color:var(--muted);line-height:1.65}
+.footer-copy{font-size:.78rem;color:var(--dimmed);line-height:1.7}
+.footer-nav-title{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem}
+.footer-nav-links{list-style:none;display:flex;flex-direction:column;gap:.5rem}
+.footer-nav-links a{text-decoration:none;color:var(--muted);font-size:.83rem;transition:color .2s}
+.footer-nav-links a:hover{color:var(--orange)}
+.footer-bottom{
+  max-width:1280px;margin:0 auto;
+  border-top:1px solid var(--border-faint);padding-top:1.5rem;
+  font-size:.75rem;color:var(--dimmed);text-align:center;line-height:1.7;
+}
+
+/* ── TOAST ── */
+#toast-container{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;
+  display:flex;flex-direction:column;gap:.6rem;align-items:flex-end;
+}
+.toast{
+  background:var(--panel2);border:1px solid var(--border-faint);
+  border-left:3px solid var(--orange);
+  border-radius:10px;padding:.9rem 1.2rem;min-width:280px;max-width:340px;
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+  animation:toastIn .4s cubic-bezier(.34,1.56,.64,1) both;
+}.toast.out{animation:toastOut .3s ease both}
+.toast-title{font-size:.85rem;font-weight:700;margin-bottom:.2rem}
+.toast-desc{font-size:.77rem;color:var(--muted)}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  nav{padding:.9rem 1.2rem}
+  .nav-links{display:none}
+  .hero-inner{grid-template-columns:1fr}
+  .phone-wrap{display:none}
+  .hero-sub-text{max-width:100%}
+  h1.headline{font-size:clamp(2.5rem,10vw,3.5rem)}
+  .container{padding:0 1.2rem}
+  .arch-head{grid-template-columns:1fr}
+  .arch-grid{grid-template-columns:1fr}
+  .order-layout,.driver-layout,.dashboard-bottom{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .stack-grid{grid-template-columns:1fr 1fr}
+  .quality-grid{grid-template-columns:1fr}
+  .footer-inner{grid-template-columns:1fr}
+  .section-pad{padding:72px 0}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="logo">🔥 <span class="shewa">Shewa</span><span class="delivery">Delivery</span></a>
+  <ul class="nav-links">
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#modules">Modules</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#quality">Quality</a></li>
+  </ul>
+  <button class="nav-cta" onclick="scrollTo('#modules')">View Prototype →</button>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="dot-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="badge hero-badge"><span class="badge-dot"></span>Section 6 — Implementation Prototype</div>
+      <h1 class="headline hero-h1">
+        Food Delivered<br>
+        <span class="grad">Fast,</span> Across<br>
+        Ethiopia. 🔥
+      </h1>
+      <p class="hero-sub-text hero-sub">ShewaDelivery connects customers, restaurants, and drivers on a resilient microservices platform built for Ethiopian mobile networks.</p>
+      <div class="btn-row hero-btns">
+        <a href="#modules" class="btn-primary">Explore Modules →</a>
+        <a href="#architecture" class="btn-ghost">View Architecture</a>
+      </div>
+      <div class="stats-row hero-stats">
+        <div class="stat-item">
+          <div class="stat-val">&lt; 2s</div>
+          <div class="stat-label">Home screen load on 3G</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">99.9%</div>
+          <div class="stat-label">Uptime SLA target</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">3</div>
+          <div class="stat-label">Integrated modules</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-bar">
+          <div class="phone-loc">📍 Mekelle, Tigray</div>
+          <div class="phone-search">🔍 Search restaurants...</div>
+        </div>
+        <div class="phone-cats">
+          <span class="cat-pill">All</span>
+          <span class="cat-pill inactive">Ethiopian</span>
+          <span class="cat-pill inactive">Fast Food</span>
+          <span class="cat-pill inactive">Pizza</span>
+        </div>
+        <div class="phone-cards">
+          <div class="p-card">
+            <div class="p-card-icon">🍛</div>
+            <div class="p-card-info">
+              <div class="p-card-name">Axum Restaurant</div>
+              <div class="p-card-meta">⭐ 4.8 · 1.2 km · Ethiopian</div>
+            </div>
+            <span class="p-open">Open</span>
+          </div>
+          <div class="p-card">
+            <div class="p-card-icon">🥩</div>
+            <div class="p-card-info">
+              <div class="p-card-name">Tigray Kitchen</div>
+              <div class="p-card-meta">⭐ 4.6 · 2.1 km · Local</div>
+            </div>
+            <span class="p-open">Open</span>
+          </div>
+          <div class="p-card">
+            <div class="p-card-icon">🍕</div>
+            <div class="p-card-info">
+              <div class="p-card-name">Mekelle Bites</div>
+              <div class="p-card-meta">⭐ 4.3 · 3.0 km · Mixed</div>
+            </div>
+            <span class="p-open">Open</span>
+          </div>
+        </div>
+        <div class="phone-nav">
+          <span class="ph-nav-icon active-nav">🏠</span>
+          <span class="ph-nav-icon">🔍</span>
+          <span class="ph-nav-icon">📋</span>
+          <span class="ph-nav-icon">👤</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── ARCHITECTURE ── -->
+<section id="architecture">
+  <div class="container section-pad">
+    <div class="arch-head">
+      <div>
+        <div class="sec-label">System Design</div>
+        <h2 class="sec-heading display">Microservices Architecture</h2>
+      </div>
+      <p class="arch-desc">Six independent layers communicate asynchronously via RabbitMQ events and synchronously through a unified API Gateway — each layer independently deployable and horizontally scalable.</p>
+    </div>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-icon">📱</div>
+        <div class="arch-name">Mobile & Web UI</div>
+        <p class="arch-desc-text">React Native (Expo) for iOS/Android and React.js for the web. TypeScript throughout for type safety and developer ergonomics.</p>
+        <div class="tag-row"><span class="tag">React Native</span><span class="tag">TypeScript</span><span class="tag">Tailwind</span></div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">🔀</div>
+        <div class="arch-name">API Gateway</div>
+        <p class="arch-desc-text">Nginx reverse proxy with JWT middleware handles all external traffic. Rate limiting at 100 req/min per client IP prevents abuse.</p>
+        <div class="tag-row"><span class="tag">Nginx</span><span class="tag">JWT Auth</span><span class="tag">Rate Limiting</span></div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">⚙️</div>
+        <div class="arch-name">Backend Services</div>
+        <p class="arch-desc-text">Six isolated Node.js microservices: Order, User, Driver, Restaurant, Payment, and Notification — each with its own data store.</p>
+        <div class="tag-row"><span class="tag">Node.js</span><span class="tag">Express.js</span><span class="tag">Microservices</span></div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">📨</div>
+        <div class="arch-name">Message Broker</div>
+        <p class="arch-desc-text">RabbitMQ on Amazon MQ decouples services with AMQP events. Order events propagate to all consumers within 500ms guaranteed.</p>
+        <div class="tag-row"><span class="tag">RabbitMQ</span><span class="tag">Amazon MQ</span><span class="tag">AMQP</span></div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">🗄️</div>
+        <div class="arch-name">Data Layer</div>
+        <p class="arch-desc-text">PostgreSQL on RDS for transactional data, MongoDB Atlas for geo-spatial GPS documents, Redis for sub-millisecond session caching.</p>
+        <div class="tag-row"><span class="tag">PostgreSQL</span><span class="tag">MongoDB</span><span class="tag">Redis</span></div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">☁️</div>
+        <div class="arch-name">DevOps / Infra</div>
+        <p class="arch-desc-text">Kubernetes on AWS EKS with GitHub Actions CI/CD pipelines. Terraform manages infrastructure as code. CloudWatch for observability.</p>
+        <div class="tag-row"><span class="tag">AWS EKS</span><span class="tag">Terraform</span><span class="tag">CI/CD</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── MODULES ── -->
+<section id="modules">
+  <div class="container section-pad">
+    <div class="sec-label">Implementation Prototype</div>
+    <h2 class="sec-heading display">Three Integrated Modules</h2>
+    <p class="sec-sub" style="margin-bottom:2.5rem">Interactive demonstrations of the core flows powering ShewaDelivery's real-time operations across Mekelle.</p>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('order')">📦 Order Flow</button>
+      <button class="tab-btn" onclick="switchTab('driver')">🏍️ Driver Assignment</button>
+      <button class="tab-btn" onclick="switchTab('dashboard')">📊 Restaurant Dashboard</button>
+    </div>
+
+    <!-- TAB 1: ORDER FLOW -->
+    <div class="tab-panel active" id="tab-order">
+      <div class="order-layout">
+        <div>
+          <div class="stepper" id="stepper">
+            <div class="step active" data-step="0">
+              <div class="step-circle">1</div>
+              <div>
+                <div class="step-title">Customer Places Order</div>
+                <div class="step-desc">POST /api/v1/orders · JWT auth · idempotency key header</div>
+              </div>
+            </div>
+            <div class="step pending" data-step="1">
+              <div class="step-circle">2</div>
+              <div>
+                <div class="step-title">Event Published to RabbitMQ</div>
+                <div class="step-desc">Within 500ms · order.created topic · async consumption</div>
+              </div>
+            </div>
+            <div class="step pending" data-step="2">
+              <div class="step-circle">3</div>
+              <div>
+                <div class="step-title">Restaurant Confirms</div>
+                <div class="step-desc">WebSocket notification to dashboard · status: PREPARING</div>
+              </div>
+            </div>
+            <div class="step pending" data-step="3">
+              <div class="step-circle">4</div>
+              <div>
+                <div class="step-title">Driver Assigned (Haversine)</div>
+                <div class="step-desc">Nearest available within 10s · GPS from MongoDB Atlas</div>
+              </div>
+            </div>
+            <div class="step pending" data-step="4">
+              <div class="step-circle">5</div>
+              <div>
+                <div class="step-title">Live GPS Tracking</div>
+                <div class="step-desc">WebSocket updates every ≤5s · driver.location.{orderId}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="order-card">
+            <div class="order-id-row">
+              <div class="order-id">#SHW-2024-0847</div>
+              <div class="chip chip-yellow" id="order-chip">Pending</div>
+            </div>
+            <div class="order-items">
+              <div class="oi"><span class="oi-name">Tibs Special × 2</span><span class="oi-price">240 ETB</span></div>
+              <div class="oi"><span class="oi-name">Injera Combo × 1</span><span class="oi-price">85 ETB</span></div>
+              <div class="oi"><span class="oi-name">Fresh Juice × 2</span><span class="oi-price">60 ETB</span></div>
+              <div class="oi"><span class="oi-name">Delivery Fee</span><span class="oi-price">25 ETB</span></div>
+            </div>
+            <div class="order-total"><span>Total</span><span class="total-val">410 ETB</span></div>
+            <div class="mini-map"><div class="gps-dot" id="gps-dot"></div></div>
+            <div class="order-btns">
+              <button class="btn-sm btn-sm-primary" id="advance-btn" onclick="advanceOrder()">Advance Status →</button>
+              <button class="btn-sm btn-sm-ghost" onclick="resetOrder()">Reset</button>
+            </div>
+            <div class="order-log" id="order-log">
+              <div class="log-line">▶ Order #SHW-2024-0847 initialized — waiting for action...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: DRIVER ASSIGNMENT -->
+    <div class="tab-panel" id="tab-driver">
+      <div class="driver-layout">
+        <div>
+          <div class="driver-map">
+            <div class="driver-map-title">📡 Live Driver Map — Mekelle Zone</div>
+            <div class="map-area" id="map-area" style="position:relative">
+              <!-- ── Mekelle SVG Map ── -->
+              <svg viewBox="0 0 520 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;position:absolute;inset:0">
+                <defs>
+                  <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#dde8d0"/>
+                    <stop offset="100%" stop-color="#c8dbb8"/>
+                  </linearGradient>
+                  <filter id="roadShadow"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity=".12"/></filter>
+                </defs>
+                <!-- Base terrain -->
+                <rect width="520" height="260" fill="url(#bgGrad)"/>
+                <!-- Hill shading (east highlands) -->
+                <ellipse cx="430" cy="80" rx="120" ry="90" fill="rgba(100,130,60,.13)"/>
+                <ellipse cx="460" cy="200" rx="90" ry="70" fill="rgba(100,130,60,.1)"/>
+                <!-- Open park/land areas -->
+                <rect x="200" y="95" width="80" height="50" rx="6" fill="rgba(130,190,100,.25)" stroke="rgba(100,160,80,.4)" stroke-width=".7"/>
+                <text x="239" y="124" text-anchor="middle" font-size="5.5" fill="rgba(60,100,40,.7)" font-family="sans-serif">Martyrs Sq.</text>
+                <rect x="50" y="160" width="55" height="35" rx="5" fill="rgba(130,190,100,.2)" stroke="rgba(100,160,80,.35)" stroke-width=".7"/>
+                <text x="77" y="181" text-anchor="middle" font-size="5" fill="rgba(60,100,40,.7)" font-family="sans-serif">Park</text>
+                <!-- Water -->
+                <path d="M0,238 Q60,230 120,238 Q180,246 240,238 Q300,230 360,238" stroke="#7ab8d9" stroke-width="3" fill="none" opacity=".55"/>
+
+                <!-- ── ROADS ── -->
+                <!-- Alula Ave (main N-S spine) -->
+                <line x1="220" y1="0" x2="220" y2="260" stroke="#fff" stroke-width="5" opacity=".85" filter="url(#roadShadow)"/>
+                <line x1="220" y1="0" x2="220" y2="260" stroke="#f5c96a" stroke-width="2.5" stroke-dasharray="8,6" opacity=".6"/>
+                <text x="226" y="22" font-size="6" fill="rgba(80,50,0,.7)" font-family="sans-serif" font-weight="700">Alula Ave</text>
+
+                <!-- Airport Rd (main E-W) -->
+                <line x1="0" y1="130" x2="520" y2="130" stroke="#fff" stroke-width="5" opacity=".85" filter="url(#roadShadow)"/>
+                <line x1="0" y1="130" x2="520" y2="130" stroke="#f5c96a" stroke-width="2.5" stroke-dasharray="8,6" opacity=".6"/>
+                <text x="10" y="126" font-size="6" fill="rgba(80,50,0,.7)" font-family="sans-serif" font-weight="700">Airport Rd</text>
+
+                <!-- Secondary roads -->
+                <line x1="120" y1="0" x2="120" y2="260" stroke="#fff" stroke-width="3" opacity=".7"/>
+                <line x1="350" y1="0" x2="350" y2="260" stroke="#fff" stroke-width="3" opacity=".7"/>
+                <line x1="0" y1="60" x2="520" y2="60" stroke="#fff" stroke-width="3" opacity=".7"/>
+                <line x1="0" y1="195" x2="520" y2="195" stroke="#fff" stroke-width="3" opacity=".7"/>
+
+                <!-- Tertiary / local streets -->
+                <line x1="60" y1="0" x2="60" y2="260" stroke="#eee" stroke-width="1.5" opacity=".6"/>
+                <line x1="170" y1="0" x2="170" y2="260" stroke="#eee" stroke-width="1.5" opacity=".6"/>
+                <line x1="280" y1="0" x2="280" y2="260" stroke="#eee" stroke-width="1.5" opacity=".6"/>
+                <line x1="420" y1="0" x2="420" y2="260" stroke="#eee" stroke-width="1.5" opacity=".6"/>
+                <line x1="480" y1="0" x2="480" y2="260" stroke="#eee" stroke-width="1.5" opacity=".6"/>
+                <line x1="0" y1="25" x2="520" y2="25" stroke="#eee" stroke-width="1.5" opacity=".6"/>
+                <line x1="0" y1="95" x2="520" y2="95" stroke="#eee" stroke-width="1.5" opacity=".6"/>
+                <line x1="0" y1="162" x2="520" y2="162" stroke="#eee" stroke-width="1.5" opacity=".6"/>
+                <line x1="0" y1="228" x2="520" y2="228" stroke="#eee" stroke-width="1.5" opacity=".6"/>
+
+                <!-- ── LANDMARKS ── -->
+                <!-- MU Campus -->
+                <rect x="330" y="30" width="60" height="42" rx="5" fill="rgba(249,115,22,.18)" stroke="rgba(249,115,22,.5)" stroke-width="1"/>
+                <text x="360" y="53" text-anchor="middle" font-size="5.5" fill="rgba(150,60,0,.85)" font-family="sans-serif" font-weight="700">Mekelle Univ.</text>
+
+                <!-- Airport -->
+                <rect x="2" y="105" width="55" height="32" rx="4" fill="rgba(96,165,250,.2)" stroke="rgba(96,165,250,.5)" stroke-width="1"/>
+                <text x="29" y="119" text-anchor="middle" font-size="5" fill="rgba(30,60,150,.8)" font-family="sans-serif">✈ Airport</text>
+                <text x="29" y="128" text-anchor="middle" font-size="4.5" fill="rgba(30,60,150,.65)" font-family="sans-serif">Alula Aba Nega</text>
+
+                <!-- Axum Hotel -->
+                <rect x="195" y="105" width="50" height="20" rx="4" fill="rgba(167,139,250,.22)" stroke="rgba(139,92,246,.4)" stroke-width="1"/>
+                <text x="220" y="118" text-anchor="middle" font-size="5" fill="rgba(80,30,150,.8)" font-family="sans-serif">🏨 Axum Hotel</text>
+
+                <!-- Central Market -->
+                <rect x="95" y="65" width="48" height="26" rx="4" fill="rgba(34,197,94,.2)" stroke="rgba(34,197,94,.4)" stroke-width="1"/>
+                <text x="119" y="81" text-anchor="middle" font-size="5" fill="rgba(20,100,50,.85)" font-family="sans-serif">🛒 Market</text>
+
+                <!-- Tigray Hotel -->
+                <rect x="345" y="115" width="50" height="20" rx="4" fill="rgba(167,139,250,.18)" stroke="rgba(139,92,246,.35)" stroke-width="1"/>
+                <text x="370" y="128" text-anchor="middle" font-size="5" fill="rgba(80,30,150,.8)" font-family="sans-serif">🏨 Tigray Hotel</text>
+
+                <!-- Hospital -->
+                <rect x="430" y="55" width="52" height="26" rx="4" fill="rgba(239,68,68,.15)" stroke="rgba(220,38,38,.4)" stroke-width="1"/>
+                <text x="456" y="71" text-anchor="middle" font-size="5" fill="rgba(150,20,20,.85)" font-family="sans-serif">🏥 Hospital</text>
+
+                <!-- Cadale area label -->
+                <text x="75" y="215" text-anchor="middle" font-size="6" fill="rgba(50,50,50,.5)" font-family="sans-serif" font-style="italic">Cadale District</text>
+                <text x="400" y="215" text-anchor="middle" font-size="6" fill="rgba(50,50,50,.5)" font-family="sans-serif" font-style="italic">Kedamay Weyane</text>
+                <text x="400" y="50" text-anchor="middle" font-size="6" fill="rgba(50,50,50,.5)" font-family="sans-serif" font-style="italic">Adi-Haki</text>
+
+                <!-- Compass rose -->
+                <g transform="translate(490,15)">
+                  <circle cx="0" cy="0" r="9" fill="rgba(255,255,255,.75)" stroke="rgba(0,0,0,.12)" stroke-width=".8"/>
+                  <text x="0" y="-3" text-anchor="middle" font-size="5.5" fill="#333" font-family="sans-serif" font-weight="700">N</text>
+                  <line x1="0" y1="-7" x2="0" y2="-1" stroke="#333" stroke-width=".8"/>
+                </g>
+
+                <!-- Scale bar -->
+                <g transform="translate(10,248)">
+                  <line x1="0" y1="0" x2="40" y2="0" stroke="#555" stroke-width="1.5"/>
+                  <line x1="0" y1="-3" x2="0" y2="3" stroke="#555" stroke-width="1.5"/>
+                  <line x1="40" y1="-3" x2="40" y2="3" stroke="#555" stroke-width="1.5"/>
+                  <text x="20" y="-5" text-anchor="middle" font-size="5" fill="#555" font-family="sans-serif">1 km</text>
+                </g>
+
+                <!-- Map title badge -->
+                <rect x="148" y="2" width="80" height="14" rx="4" fill="rgba(249,115,22,.9)"/>
+                <text x="188" y="12" text-anchor="middle" font-size="6.5" fill="#fff" font-family="sans-serif" font-weight="700">Mekelle City</text>
+              </svg>
+
+              <!-- Driver dots overlaid on top of SVG -->
+              <!-- Haile T. — near Market, top-left zone -->
+              <div class="driver-dot avail" style="top:37%;left:23%" onclick="selectDriverFromMap(0)" title="Haile T. — 1.2km">H</div>
+              <!-- Yonas B. — Cadale district, bottom-left -->
+              <div class="driver-dot avail" style="top:77%;left:32%" onclick="selectDriverFromMap(1)" title="Yonas B. — 2.1km">Y</div>
+              <!-- Kidist M. — near Tigray Hotel -->
+              <div class="driver-dot avail" style="top:52%;left:68%" onclick="selectDriverFromMap(2)" title="Kidist M. — 3.4km">K</div>
+              <!-- Teklay A. — Kedamay Weyane, bottom-right -->
+              <div class="driver-dot avail" style="top:78%;left:78%" onclick="selectDriverFromMap(3)" title="Teklay A. — 4.8km">T</div>
+              <!-- Mekdes G. — busy, near MU Campus -->
+              <div class="driver-dot busy" style="top:22%;left:66%" title="Mekdes G. (busy)">M</div>
+              <!-- New order pin — near Axum Hotel / city centre -->
+              <div class="order-pin" style="top:48%;left:43%"></div>
+            </div>
+            <div class="map-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#22C55E"></div>Available (4)</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Busy (1)</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>New Order</div>
+            </div>
+            <div class="formula-box">
+              <div class="formula-label">Distance Calculation Engine</div>
+              <div class="formula-code">d = 2R·arcsin(√(sin²(Δφ/2) +<br>cos φ₁·cos φ₂·sin²(Δλ/2)))<br>R = 6371km · threshold = 10km</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.8rem;color:var(--muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.8rem">Drivers by Distance</div>
+          <div class="driver-list" id="driver-list">
+            <div class="driver-card" data-driver="0" onclick="selectDriver(0)">
+              <div class="driver-avatar">HT</div>
+              <div class="driver-info">
+                <div class="driver-name">Haile Tesfaye</div>
+                <div class="driver-meta">⭐ 4.9 · Motorcycle · Available</div>
+              </div>
+              <div style="text-align:right">
+                <div class="driver-dist">1.2</div>
+                <span class="driver-dist-unit">km away</span>
+              </div>
+            </div>
+            <div class="driver-card" data-driver="1" onclick="selectDriver(1)">
+              <div class="driver-avatar">YB</div>
+              <div class="driver-info">
+                <div class="driver-name">Yonas Berhe</div>
+                <div class="driver-meta">⭐ 4.7 · Bicycle · Available</div>
+              </div>
+              <div style="text-align:right">
+                <div class="driver-dist">2.1</div>
+                <span class="driver-dist-unit">km away</span>
+              </div>
+            </div>
+            <div class="driver-card" data-driver="2" onclick="selectDriver(2)">
+              <div class="driver-avatar">KM</div>
+              <div class="driver-info">
+                <div class="driver-name">Kidist Mekonen</div>
+                <div class="driver-meta">⭐ 4.8 · Motorcycle · Available</div>
+              </div>
+              <div style="text-align:right">
+                <div class="driver-dist">3.4</div>
+                <span class="driver-dist-unit">km away</span>
+              </div>
+            </div>
+            <div class="driver-card" data-driver="3" onclick="selectDriver(3)">
+              <div class="driver-avatar">TA</div>
+              <div class="driver-info">
+                <div class="driver-name">Teklay Abrha</div>
+                <div class="driver-meta">⭐ 4.5 · Car · Available</div>
+              </div>
+              <div style="text-align:right">
+                <div class="driver-dist">4.8</div>
+                <span class="driver-dist-unit">km away</span>
+              </div>
+            </div>
+            <div class="driver-card" style="opacity:.45;cursor:not-allowed" data-driver="4">
+              <div class="driver-avatar" style="background:rgba(251,191,36,.3);color:var(--amber)">MG</div>
+              <div class="driver-info">
+                <div class="driver-name">Mekdes Gebru</div>
+                <div class="driver-meta">⭐ 4.6 · Motorcycle · Busy</div>
+              </div>
+              <div style="text-align:right">
+                <div class="driver-dist" style="color:var(--amber)">5.2</div>
+                <span class="driver-dist-unit">km away</span>
+              </div>
+            </div>
+          </div>
+          <button class="assign-btn" id="assign-btn" onclick="assignDriver()">Select a driver to assign</button>
+          <div class="assign-confirm" id="assign-confirm">✅ Driver assigned! Estimated arrival: <strong id="eta-text">8 min</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: RESTAURANT DASHBOARD -->
+    <div class="tab-panel" id="tab-dashboard">
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">Orders Today</div>
+          <div class="kpi-val orange" id="kpi-orders">47</div>
+          <div class="kpi-sub">↑ 12% vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Revenue (ETB)</div>
+          <div class="kpi-val" style="color:var(--amber)">8,240</div>
+          <div class="kpi-sub">↑ 8% vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Prep Time</div>
+          <div class="kpi-val">18 min</div>
+          <div class="kpi-sub">↓ 2 min from last week</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Rating</div>
+          <div class="kpi-val" style="color:#22C55E">4.8 ⭐</div>
+          <div class="kpi-sub">Based on 312 reviews</div>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterOrders('all', this)">All</button>
+        <button class="filter-btn" onclick="filterOrders('preparing', this)">Preparing</button>
+        <button class="filter-btn" onclick="filterOrders('ready', this)">Ready</button>
+      </div>
+
+      <div class="orders-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody">
+            <tr data-status="preparing">
+              <td style="font-family:monospace;font-size:.78rem;color:var(--orange)">#SHW-0847</td>
+              <td>Alem Weldai</td>
+              <td>Tibs Special, Injera Combo</td>
+              <td>325 ETB</td>
+              <td><span class="chip chip-orange" id="status-0847">Preparing</span></td>
+              <td><button class="mark-ready-btn" onclick="markReady(this,'0847')">Mark Ready</button></td>
+            </tr>
+            <tr data-status="preparing">
+              <td style="font-family:monospace;font-size:.78rem;color:var(--orange)">#SHW-0848</td>
+              <td>Gebru Hailé</td>
+              <td>Fresh Juice × 3, Kitfo</td>
+              <td>210 ETB</td>
+              <td><span class="chip chip-orange" id="status-0848">Preparing</span></td>
+              <td><button class="mark-ready-btn" onclick="markReady(this,'0848')">Mark Ready</button></td>
+            </tr>
+            <tr data-status="ready">
+              <td style="font-family:monospace;font-size:.78rem;color:var(--orange)">#SHW-0844</td>
+              <td>Miriam Tsegay</td>
+              <td>Vegetarian Injera</td>
+              <td>95 ETB</td>
+              <td><span class="chip chip-green">Ready</span></td>
+              <td><button class="mark-ready-btn" disabled>Mark Ready</button></td>
+            </tr>
+            <tr data-status="ready">
+              <td style="font-family:monospace;font-size:.78rem;color:var(--orange)">#SHW-0841</td>
+              <td>Solomon Desta</td>
+              <td>Tibs Special × 2</td>
+              <td>240 ETB</td>
+              <td><span class="chip chip-green">Ready</span></td>
+              <td><button class="mark-ready-btn" disabled>Mark Ready</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="dashboard-bottom">
+        <div class="chart-area">
+          <div class="chart-title">📈 Hourly Orders</div>
+          <div class="bar-chart" id="bar-chart"></div>
+        </div>
+        <div class="menu-items-area">
+          <div class="chart-title">🏆 Top Menu Items</div>
+          <div>
+            <div class="menu-item-row">
+              <div class="rank-circle">1</div>
+              <div class="menu-info">
+                <div class="menu-name">Tibs Special</div>
+                <div class="menu-bar-bg"><div class="menu-bar-fill" style="width:92%"></div></div>
+              </div>
+              <div class="menu-count">184</div>
+            </div>
+            <div class="menu-item-row">
+              <div class="rank-circle">2</div>
+              <div class="menu-info">
+                <div class="menu-name">Injera Combo</div>
+                <div class="menu-bar-bg"><div class="menu-bar-fill" style="width:72%"></div></div>
+              </div>
+              <div class="menu-count">143</div>
+            </div>
+            <div class="menu-item-row">
+              <div class="rank-circle">3</div>
+              <div class="menu-info">
+                <div class="menu-name">Fresh Juice</div>
+                <div class="menu-bar-bg"><div class="menu-bar-fill" style="width:58%"></div></div>
+              </div>
+              <div class="menu-count">116</div>
+            </div>
+            <div class="menu-item-row">
+              <div class="rank-circle">4</div>
+              <div class="menu-info">
+                <div class="menu-name">Kitfo</div>
+                <div class="menu-bar-bg"><div class="menu-bar-fill" style="width:40%"></div></div>
+              </div>
+              <div class="menu-count">80</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── STACK ── -->
+<section id="stack">
+  <div class="container section-pad">
+    <div class="sec-label">Technology Choices</div>
+    <h2 class="sec-heading display">Full-Stack Environment</h2>
+    <p class="sec-sub">Each technology chosen to serve specific Architecture Significant Requirements — performance, availability, and scalability under Ethiopian network conditions.</p>
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="stack-icon">⚛️</div>
+        <div class="stack-tech">React Native</div>
+        <div class="stack-role">Mobile Frontend</div>
+        <div class="stack-why">Expo-managed workflow enables 60fps on low-cost Android devices prevalent in Mekelle. Shared codebase reduces delivery time by ~40%.</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">🟢</div>
+        <div class="stack-tech">Node.js + Express</div>
+        <div class="stack-role">Backend Services</div>
+        <div class="stack-why">Non-blocking I/O handles 10,000+ concurrent WebSocket connections critical for live GPS updates without thread overhead.</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">🐘</div>
+        <div class="stack-tech">PostgreSQL</div>
+        <div class="stack-role">Primary Database</div>
+        <div class="stack-why">ACID compliance ensures payment and order integrity. AWS RDS Multi-AZ supports 99.9% availability SLA with automatic failover.</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">🍃</div>
+        <div class="stack-tech">MongoDB Atlas</div>
+        <div class="stack-role">GPS Document Store</div>
+        <div class="stack-why">Native geospatial indexes ($near, $geoWithin) make Haversine-based driver queries sub-10ms — critical for the 10s assignment target.</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">🐇</div>
+        <div class="stack-tech">RabbitMQ</div>
+        <div class="stack-role">Message Broker</div>
+        <div class="stack-why">AMQP with durable queues guarantees no order event loss on service crash. 500ms propagation SLA is achievable with direct exchanges.</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">⚡</div>
+        <div class="stack-tech">Redis</div>
+        <div class="stack-role">Cache Layer</div>
+        <div class="stack-why">Session tokens and restaurant menus cached with TTL, reducing PostgreSQL reads by ~65%. In-memory delivery stays under 2ms P99.</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">☸️</div>
+        <div class="stack-tech">AWS EKS</div>
+        <div class="stack-role">Container Orchestration</div>
+        <div class="stack-why">Kubernetes HPA auto-scales driver service pods during peak hours (18:00–21:00 local). Zero-downtime rolling deployments via CI/CD.</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon">🔧</div>
+        <div class="stack-tech">Terraform</div>
+        <div class="stack-role">Infrastructure as Code</div>
+        <div class="stack-why">Declarative IaC ensures reproducible environments. Version-controlled infra enables one-command staging and production deploys.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── QUALITY ── -->
+<section id="quality">
+  <div class="container section-pad">
+    <div class="sec-label">Quality Evaluation</div>
+    <h2 class="sec-heading display">Architecture Quality Attributes</h2>
+    <p class="sec-sub" style="margin-bottom:3rem">Measured against ISO/IEC 25010 quality model. Each attribute traced directly to architectural decisions and technology choices.</p>
+    <div class="quality-grid" id="quality-grid">
+      <div class="quality-card">
+        <div class="q-icon">⚡</div>
+        <div class="q-name">Performance</div>
+        <div class="q-metric">&lt; 2s</div>
+        <div class="q-desc">Home screen loads under 2 seconds on 3G networks via Redis caching, CDN assets, and pre-rendered menu catalogs.</div>
+        <div class="progress-bg"><div class="progress-fill" style="--w:90%"></div></div>
+      </div>
+      <div class="quality-card">
+        <div class="q-icon">🔒</div>
+        <div class="q-name">Security</div>
+        <div class="q-metric">100%</div>
+        <div class="q-desc">All endpoints protected by JWT auth middleware. TLS 1.3 for all connections. OAuth 2.0 for third-party payment integration.</div>
+        <div class="progress-bg"><div class="progress-fill" style="--w:100%"></div></div>
+      </div>
+      <div class="quality-card">
+        <div class="q-icon">📈</div>
+        <div class="q-name">Scalability</div>
+        <div class="q-metric">10,000+</div>
+        <div class="q-desc">EKS HPA scales driver and order pods horizontally. RabbitMQ queue depth triggers autoscaling to handle concurrent orders at peak.</div>
+        <div class="progress-bg"><div class="progress-fill" style="--w:82%"></div></div>
+      </div>
+      <div class="quality-card">
+        <div class="q-icon">🟢</div>
+        <div class="q-name">Availability</div>
+        <div class="q-metric">99.9%</div>
+        <div class="q-desc">Multi-AZ RDS, replicated RabbitMQ, and Kubernetes self-healing achieve three-nines availability as a measurable SLA target.</div>
+        <div class="progress-bg"><div class="progress-fill" style="--w:97%"></div></div>
+      </div>
+      <div class="quality-card">
+        <div class="q-icon">🔧</div>
+        <div class="q-name">Maintainability</div>
+        <div class="q-metric">80%+</div>
+        <div class="q-desc">80% test coverage target enforced in CI. Independent deployable microservices ensure changes to one service don't affect others.</div>
+        <div class="progress-bg"><div class="progress-fill" style="--w:80%"></div></div>
+      </div>
+      <div class="quality-card">
+        <div class="q-icon">📱</div>
+        <div class="q-name">Usability</div>
+        <div class="q-metric">2 Languages</div>
+        <div class="q-desc">Full Amharic and English localisation with i18n libraries. Right-to-left text support included. Offline-first for intermittent connectivity.</div>
+        <div class="progress-bg"><div class="progress-fill" style="--w:70%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">🔥 <span style="color:var(--cream)">Shewa</span><span style="color:var(--orange)">Delivery</span></div>
+      <div class="footer-tagline">Real-time food delivery for Ethiopia.<br>Built on resilient microservices architecture.</div>
+    </div>
+    <div>
+      <div class="footer-nav-title">Academic</div>
+      <div class="footer-copy">
+        SEND5232 — Software Architecture<br>
+        Shewit Amha (UGR/188671/16)<br>
+        Mekelle University · EIT-M<br>
+        Section 6 — Implementation Prototype
+      </div>
+    </div>
+    <div>
+      <div class="footer-nav-title">Navigate</div>
+      <ul class="footer-nav-links">
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#modules">Modules</a></li>
+        <li><a href="#stack">Stack</a></li>
+        <li><a href="#quality">Quality</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2024 ShewaDelivery — SEND5232 · Mekelle University · Section 6 Implementation Prototype · All rights reserved
+  </div>
+</footer>
+
+<!-- ── TOAST CONTAINER ── -->
+<div id="toast-container"></div>
+
+<script>
+// ─── HELPERS ───
+function scrollTo(anchor){document.querySelector(anchor)?.scrollIntoView({behavior:'smooth'})}
+function showToast(title,desc,color){
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div');
+  t.className='toast';
+  t.style.borderLeftColor=color||'var(--orange)';
+  t.innerHTML=`<div class="toast-title">${title}</div><div class="toast-desc">${desc}</div>`;
+  c.appendChild(t);
+  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350)},3500);
+}
+
+// ─── TABS ───
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    const names=['order','driver','dashboard'];
+    b.classList.toggle('active',names[i]===name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  const panel=document.getElementById('tab-'+name);
+  panel.classList.add('active');
+  if(name==='dashboard')initBarChart();
+  if(name==='quality')animateProgress();
+}
+
+// ─── ORDER FLOW ───
+const orderSteps=[
+  {status:'Order Placed',chip:'chip-yellow',chipLabel:'Pending',log:'POST /api/v1/orders — 201 Created · idempotency-key: SHW-2024-0847'},
+  {status:'Event Sent',chip:'chip-orange',chipLabel:'Processing',log:'AMQP publish → order.created · queue: restaurant_queue · latency: 48ms'},
+  {status:'Confirmed',chip:'chip-blue',chipLabel:'Preparing',log:'WS → restaurant_dashboard:0847 · event: ORDER_CONFIRMED · status: PREPARING'},
+  {status:'Driver Found',chip:'chip-orange',chipLabel:'En Route',log:'Haversine query → Haile T. · distance: 1.2km · assigned in: 3.2s'},
+  {status:'Delivered',chip:'chip-green',chipLabel:'Delivered',log:'GPS tracking ended · final status: DELIVERED · duration: 24 min'},
+];
+let currentStep=0;
+function advanceOrder(){
+  if(currentStep>=orderSteps.length)return;
+  const steps=document.querySelectorAll('.step');
+  const s=orderSteps[currentStep];
+  // mark all previous as done
+  for(let i=0;i<currentStep;i++){
+    steps[i].className='step done';
+    steps[i].querySelector('.step-circle').textContent='✓';
+  }
+  // mark current as active
+  if(currentStep<steps.length){
+    steps[currentStep].className='step active';
+  }
+  // update chip
+  const chip=document.getElementById('order-chip');
+  chip.className='chip '+s.chip;
+  chip.textContent=s.chipLabel;
+  // add log
+  const log=document.getElementById('order-log');
+  const line=document.createElement('div');
+  line.className='log-line';
+  line.textContent='▶ '+s.log;
+  log.appendChild(line);
+  log.scrollTop=log.scrollHeight;
+  showToast(s.status,s.log.split('·')[0].trim());
+  currentStep++;
+  if(currentStep>=orderSteps.length){
+    document.getElementById('advance-btn').disabled=true;
+    document.getElementById('advance-btn').style.opacity='.4';
+    // mark last step done
+    setTimeout(()=>{
+      steps[steps.length-1].className='step done';
+      steps[steps.length-1].querySelector('.step-circle').textContent='✓';
+    },300);
+  }
+}
+function resetOrder(){
+  currentStep=0;
+  document.querySelectorAll('.step').forEach((s,i)=>{
+    s.className=i===0?'step active':'step pending';
+    s.querySelector('.step-circle').textContent=i+1;
+  });
+  const chip=document.getElementById('order-chip');
+  chip.className='chip chip-yellow';chip.textContent='Pending';
+  document.getElementById('order-log').innerHTML='<div class="log-line">▶ Order #SHW-2024-0847 reset — ready to simulate...</div>';
+  const btn=document.getElementById('advance-btn');
+  btn.disabled=false;btn.style.opacity='1';
+}
+
+// ─── DRIVER ASSIGNMENT ───
+let selectedDriver=null;
+function selectDriver(idx){
+  if(idx===4)return;
+  selectedDriver=idx;
+  document.querySelectorAll('.driver-card').forEach((c,i)=>c.classList.toggle('selected',i===idx));
+  const btn=document.getElementById('assign-btn');
+  btn.classList.add('ready');
+  const names=['Haile Tesfaye','Yonas Berhe','Kidist Mekonen','Teklay Abrha'];
+  btn.textContent=`Assign ${names[idx]} →`;
+  document.getElementById('assign-confirm').style.display='none';
+}
+function selectDriverFromMap(idx){selectDriver(idx)}
+function assignDriver(){
+  if(selectedDriver===null)return;
+  const etaTimes=['8 min','14 min','22 min','30 min'];
+  document.getElementById('eta-text').textContent=etaTimes[selectedDriver];
+  const confirm=document.getElementById('assign-confirm');
+  confirm.style.display='block';
+  const names=['Haile Tesfaye','Yonas Berhe','Kidist Mekonen','Teklay Abrha'];
+  showToast('Driver Assigned',`${names[selectedDriver]} is heading to the restaurant`,'#22C55E');
+}
+
+// ─── KPI COUNTER ───
+let ordersCount=47;
+setInterval(()=>{
+  const el=document.getElementById('kpi-orders');
+  if(el&&el.closest('.tab-panel').classList.contains('active')){
+    ordersCount++;
+    el.textContent=ordersCount;
+  }
+},4000);
+
+// ─── TABLE FILTER ───
+function filterOrders(status,btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#orders-tbody tr').forEach(row=>{
+    row.style.display=(status==='all'||row.dataset.status===status)?'':'none';
+  });
+}
+
+// ─── MARK READY ───
+function markReady(btn,id){
+  const chip=document.getElementById('status-'+id);
+  chip.className='chip chip-green';chip.textContent='Ready';
+  btn.disabled=true;
+  const row=btn.closest('tr');
+  row.dataset.status='ready';
+  showToast('Order Ready','Kitchen marked order #SHW-'+id+' as ready for pickup','#22C55E');
+}
+
+// ─── BAR CHART ───
+const hourlyData=[2,3,1,0,1,2,5,8,12,15,18,14,16,13,11,14,18,22,25,21,18,14,9,6];
+const currentHour=new Date().getHours();
+function initBarChart(){
+  const el=document.getElementById('bar-chart');
+  if(el.children.length>0)return;
+  hourlyData.forEach((val,i)=>{
+    const maxH=110;
+    const h=Math.round((val/25)*maxH);
+    const wrap=document.createElement('div');
+    wrap.className='bar-wrap';
+    let cls='bar';
+    if(i===currentHour)cls+=' current';
+    else if(i>currentHour)cls+=' future';
+    wrap.innerHTML=`<div class="${cls}" style="--h:${h}px;height:${h}px"></div><div class="bar-label">${i%4===0?i+'h':''}</div>`;
+    el.appendChild(wrap);
+  });
+}
+
+// ─── PROGRESS BARS ───
+function animateProgress(){
+  document.querySelectorAll('.progress-fill').forEach(el=>{
+    const w=el.style.getPropertyValue('--w')||el.style.width||'0%';
+    el.style.width='0';
+    setTimeout(()=>{el.style.width=w},50);
+  });
+}
+
+// ─── INTERSECTION OBSERVER for quality cards ───
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.progress-fill').forEach(el=>{
+        const w=el.style.getPropertyValue('--w');
+        if(w){setTimeout(()=>{el.style.width=w},100)}
+      });
+    }
+  });
+},{threshold:.3});
+document.querySelectorAll('.quality-card').forEach(c=>observer.observe(c));
+
+// ─── INIT ───
+initBarChart();
+setTimeout(()=>{
+  showToast('🔥 ShewaDelivery','Section 6 prototype loaded successfully');
+},1200);
+</script>
+</body>
+</html>
